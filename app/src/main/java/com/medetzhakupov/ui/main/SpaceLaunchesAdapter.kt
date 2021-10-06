@@ -12,11 +12,12 @@ import com.medetzhakupov.R
 import com.medetzhakupov.data.model.SpaceLaunch
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.space_launch_item.view.image
+import kotlinx.android.synthetic.main.space_launch_item.view.is_launch_seen
 import kotlinx.android.synthetic.main.space_launch_item.view.location_name
 import kotlinx.android.synthetic.main.space_launch_item.view.title
 
 class SpaceLaunchesAdapter(private val onSpaceLaunchSelected: (SpaceLaunch) -> Unit) :
-    ListAdapter<SpaceLaunch, SpaceLaunchesAdapter.VH>(ResultDiff()) {
+    ListAdapter<Pair<SpaceLaunch, Boolean>, SpaceLaunchesAdapter.VH>(ResultDiff()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view =
@@ -33,22 +34,31 @@ class SpaceLaunchesAdapter(private val onSpaceLaunchSelected: (SpaceLaunch) -> U
         private val title: TextView = view.title
         private val locationName: TextView = view.location_name
         private val image: ImageView = view.image
+        private val isLaunchSeen: TextView = view.is_launch_seen
 
-        fun bindTo(spaceLaunch: SpaceLaunch, clickListener: (SpaceLaunch) -> Unit) {
+        fun bindTo(spaceLaunchAndIsSeen: Pair<SpaceLaunch, Boolean>, clickListener: (SpaceLaunch) -> Unit) {
+            val (spaceLaunch, isSpaceLaunchSeen) = spaceLaunchAndIsSeen
             Picasso.get().load(spaceLaunch.image).into(image)
             title.text = spaceLaunch.name
             locationName.text = spaceLaunch.pad.location.name
+            isLaunchSeen.text = if (isSpaceLaunchSeen) "Seen" else "Unseen"
             itemView.setOnClickListener { clickListener.invoke(spaceLaunch) }
         }
     }
 }
 
-class ResultDiff : DiffUtil.ItemCallback<SpaceLaunch>() {
-    override fun areItemsTheSame(oldItem: SpaceLaunch, newItem: SpaceLaunch): Boolean {
-        return oldItem.id == newItem.id
+class ResultDiff : DiffUtil.ItemCallback<Pair<SpaceLaunch, Boolean>>() {
+    override fun areItemsTheSame(
+        oldItem: Pair<SpaceLaunch, Boolean>,
+        newItem: Pair<SpaceLaunch, Boolean>
+    ): Boolean {
+        return oldItem.first.id == newItem.first.id
     }
 
-    override fun areContentsTheSame(oldItem: SpaceLaunch, newItem: SpaceLaunch): Boolean {
+    override fun areContentsTheSame(
+        oldItem: Pair<SpaceLaunch, Boolean>,
+        newItem: Pair<SpaceLaunch, Boolean>
+    ): Boolean {
         return oldItem == newItem
     }
 }

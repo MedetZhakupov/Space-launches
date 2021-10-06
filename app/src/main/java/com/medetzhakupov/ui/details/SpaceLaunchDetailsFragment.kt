@@ -10,6 +10,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import com.medetzhakupov.R
 import com.medetzhakupov.data.model.SpaceLaunch
+import com.medetzhakupov.data.repo.SeenSpaceLaunchesRepo
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.space_launch_details_fragment.coordinates
 import kotlinx.android.synthetic.main.space_launch_details_fragment.description
@@ -19,7 +20,9 @@ import kotlinx.android.synthetic.main.space_launch_details_fragment.title
 
 private const val EXTRA_SPACE_LAUNCH = "EXTRA_SPACE_LAUNCH"
 
-class SpaceLaunchDetailsFragment : Fragment() {
+class SpaceLaunchDetailsFragment(
+    private val seenSpaceLaunchesRepo: SeenSpaceLaunchesRepo
+) : Fragment() {
 
     fun withArguments(spaceLaunch: SpaceLaunch) = apply {
         arguments = bundleOf(EXTRA_SPACE_LAUNCH to spaceLaunch)
@@ -47,6 +50,11 @@ class SpaceLaunchDetailsFragment : Fragment() {
             setOnClickListener { startGoogleMaps(spaceLaunch.pad.latitude, spaceLaunch.pad.longitude) }
         }
         description.text = spaceLaunch.mission?.description
+    }
+
+    override fun onResume() {
+        super.onResume()
+        seenSpaceLaunchesRepo.markSpaceLaunchAsSeen(spaceLaunch.id)
     }
 
     private fun startGoogleMaps(latitude: String, longitude: String) {

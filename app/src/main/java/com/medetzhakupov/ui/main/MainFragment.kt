@@ -16,6 +16,7 @@ import com.medetzhakupov.BuildConfig
 import com.medetzhakupov.R
 import com.medetzhakupov.SimpleIdlingResource
 import com.medetzhakupov.data.model.SpaceLaunch
+import com.medetzhakupov.data.repo.SeenSpaceLaunchesRepo
 import com.medetzhakupov.data.repo.SpaceLaunchesRepo
 import com.medetzhakupov.ui.viewModel
 import kotlinx.android.synthetic.main.main_fragment.progress_bar
@@ -28,10 +29,11 @@ import kotlinx.coroutines.launch
 
 class MainFragment(
     repo: SpaceLaunchesRepo,
+    seenSpaceLaunchesRepo: SeenSpaceLaunchesRepo,
     private val onSpaceLaunchClicked: (SpaceLaunch) -> Unit
 ) : Fragment() {
 
-    private val viewModel by viewModel { MainViewModel(repo) }
+    private val viewModel by viewModel { MainViewModel(repo, seenSpaceLaunchesRepo) }
 
     private val spaceLaunchesAdapter = SpaceLaunchesAdapter { onSpaceLaunchClicked.invoke(it) }
         .apply { stateRestorationPolicy = PREVENT_WHEN_EMPTY }
@@ -61,7 +63,7 @@ class MainFragment(
         progress_bar.isVisible = newState is SpaceLaunchesState.Loading
 
         if (newState is SpaceLaunchesState.Loaded) {
-            spaceLaunchesAdapter.submitList(newState.spaceLaunches.results) {
+            spaceLaunchesAdapter.submitList(newState.spaceLaunches) {
                 if (BuildConfig.DEBUG) {
                     idlingResource?.setIdleState(true)
                 }
