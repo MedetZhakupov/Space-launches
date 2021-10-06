@@ -58,8 +58,8 @@ class MainFragment(
     }
 
     private fun render(newState: SpaceLaunchesState) {
-        progress_bar.isVisible =
-            spaceLaunchesAdapter.itemCount == 0 && newState is SpaceLaunchesState.Loading
+        progress_bar.isVisible = newState is SpaceLaunchesState.Loading
+        recycler_view.isVisible = newState !is SpaceLaunchesState.Loading
 
         if (newState is SpaceLaunchesState.Loaded) {
             spaceLaunchesAdapter.submitList(newState.spaceLaunches.results) {
