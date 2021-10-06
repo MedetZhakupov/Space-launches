@@ -1,5 +1,6 @@
 package com.medetzhakupov.ui.main
 
+import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,9 +11,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val repo: SpaceLaunchesRepo) : ViewModel() {
+class MainViewModel(
+    private val repo: SpaceLaunchesRepo,
+    private val preferences: SharedPreferences,
+    ) : ViewModel() {
 
     private val _spaceLaunchesState = MutableLiveData<SpaceLaunchesState>()
+    private val seenLaunches = preferences.getStringSet("space_launch_id", setOf())
 
     val spaceLaunchesState: LiveData<SpaceLaunchesState> = _spaceLaunchesState
 
@@ -30,7 +35,7 @@ class MainViewModel(private val repo: SpaceLaunchesRepo) : ViewModel() {
         viewModelScope.launch {
             repo.searchSpaceLaunches(search).collect { result ->
                 result.onSuccess {
-                    _spaceLaunchesState.value = SpaceLaunchesState.Loaded(it)
+                    _spaceLaunchesState.value = SpaceLaunchesState.Loaded(it, seenLaunches)
                 }
 
                 result.onFailure {
@@ -46,7 +51,8 @@ class MainViewModel(private val repo: SpaceLaunchesRepo) : ViewModel() {
             repo.getSpaceLaunches()
                 .collect { result ->
                 result.onSuccess {
-                    _spaceLaunchesState.value = SpaceLaunchesState.Loaded(it)
+                    _spaceLaunchesState.value =
+                        SpaceLaunchesState.Loaded(it, seenLaunches)
                 }
 
                 result.onFailure {
@@ -59,6 +65,6 @@ class MainViewModel(private val repo: SpaceLaunchesRepo) : ViewModel() {
 
 sealed class SpaceLaunchesState {
     object Loading : SpaceLaunchesState()
-    data class Loaded(val spaceLaunches: SpaceLaunches) : SpaceLaunchesState()
+    data class Loaded(val spaceLaunches: SpaceLaunches, val seenLaunches: Set<String>?) : SpaceLaunchesState()
     object Failed : SpaceLaunchesState()
 }

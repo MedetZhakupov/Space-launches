@@ -13,10 +13,13 @@ import com.medetzhakupov.data.model.SpaceLaunch
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.space_launch_item.view.image
 import kotlinx.android.synthetic.main.space_launch_item.view.location_name
+import kotlinx.android.synthetic.main.space_launch_item.view.seen_launch
 import kotlinx.android.synthetic.main.space_launch_item.view.title
 
 class SpaceLaunchesAdapter(private val onSpaceLaunchSelected: (SpaceLaunch) -> Unit) :
     ListAdapter<SpaceLaunch, SpaceLaunchesAdapter.VH>(ResultDiff()) {
+
+    var seenLaunches: Set<String>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view =
@@ -25,7 +28,7 @@ class SpaceLaunchesAdapter(private val onSpaceLaunchSelected: (SpaceLaunch) -> U
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bindTo(getItem(position)) { onSpaceLaunchSelected.invoke(it) }
+        holder.bindTo(seenLaunches, getItem(position)) { onSpaceLaunchSelected.invoke(it) }
     }
 
     class VH(view: View) : RecyclerView.ViewHolder(view) {
@@ -33,11 +36,17 @@ class SpaceLaunchesAdapter(private val onSpaceLaunchSelected: (SpaceLaunch) -> U
         private val title: TextView = view.title
         private val locationName: TextView = view.location_name
         private val image: ImageView = view.image
+        private val seenLaunch: TextView = view.seen_launch
 
-        fun bindTo(spaceLaunch: SpaceLaunch, clickListener: (SpaceLaunch) -> Unit) {
+        fun bindTo(seenLaunches: Set<String>?, spaceLaunch: SpaceLaunch, clickListener: (SpaceLaunch) -> Unit) {
             Picasso.get().load(spaceLaunch.image).into(image)
             title.text = spaceLaunch.name
             locationName.text = spaceLaunch.pad.location.name
+            seenLaunch.text = if (seenLaunches != null && seenLaunches.contains(spaceLaunch.id)) {
+                "Seen"
+            } else {
+                "Unseen"
+            }
             itemView.setOnClickListener { clickListener.invoke(spaceLaunch) }
         }
     }

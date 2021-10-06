@@ -32,10 +32,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun createFragment(fragmentClass: Class<out Fragment>): Fragment =
         when (fragmentClass) {
-            MainFragment::class.java -> MainFragment(mainInjector.provideSpaceLaunchesRepo()) {
+            MainFragment::class.java -> MainFragment(mainInjector.provideSpaceLaunchesRepo(), mainInjector.provideSharedPreferences(this)) {
                 showFragment(createFragment<SpaceLaunchDetailsFragment>().withArguments(it))
             }
-            SpaceLaunchDetailsFragment::class.java -> SpaceLaunchDetailsFragment()
+            SpaceLaunchDetailsFragment::class.java -> SpaceLaunchDetailsFragment(mainInjector.provideSharedPreferences(this))
             else -> throw IllegalArgumentException("Unknown fragment $fragmentClass")
         }
 }

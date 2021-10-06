@@ -1,6 +1,7 @@
 package com.medetzhakupov.ui.details
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,7 +20,9 @@ import kotlinx.android.synthetic.main.space_launch_details_fragment.title
 
 private const val EXTRA_SPACE_LAUNCH = "EXTRA_SPACE_LAUNCH"
 
-class SpaceLaunchDetailsFragment : Fragment() {
+class SpaceLaunchDetailsFragment(
+    private val preferences: SharedPreferences
+) : Fragment() {
 
     fun withArguments(spaceLaunch: SpaceLaunch) = apply {
         arguments = bundleOf(EXTRA_SPACE_LAUNCH to spaceLaunch)
@@ -47,6 +50,19 @@ class SpaceLaunchDetailsFragment : Fragment() {
             setOnClickListener { startGoogleMaps(spaceLaunch.pad.latitude, spaceLaunch.pad.longitude) }
         }
         description.text = spaceLaunch.mission?.description
+    }
+
+    override fun onResume() {
+        super.onResume()
+        saveSeenLaunch()
+    }
+
+    private fun saveSeenLaunch() {
+        val ID = "space_launch_id"
+        preferences.getStringSet(ID, setOf())?.apply {
+            add(spaceLaunch.id)
+            preferences.edit().putStringSet("space_launch_id", this).apply()
+        }
     }
 
     private fun startGoogleMaps(latitude: String, longitude: String) {

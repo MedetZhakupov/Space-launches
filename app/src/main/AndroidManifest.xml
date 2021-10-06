@@ -3,6 +3,11 @@
     package="com.medetzhakupov">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        </intent>
+    </queries>
 
     <application
         android:name=".App"
@@ -12,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RocketLaunch">
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivity"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
